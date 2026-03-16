@@ -3,6 +3,7 @@ import 'package:finance2/screens/tabs/dashboard_tab.dart';
 import 'package:finance2/screens/tabs/profile_tab.dart';
 import 'package:finance2/services/excel_service.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,6 +15,46 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  Future<void> _requestPermissions() async {
+    // Request SMS and Phone permissions on startup
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.sms,
+      Permission.phone,
+    ].request();
+    
+    if (statuses[Permission.sms]!.isPermanentlyDenied) {
+      // If permanently denied, guide user to settings
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Permission Required'),
+            content: const Text('SMS permission is required to send payment codes. Please enable it in settings.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.pop(context);
+                },
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {

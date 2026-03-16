@@ -1,6 +1,7 @@
 import 'package:finance2/screens/home_screen.dart';
 import 'package:finance2/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +16,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _isLogin = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  Future<void> _requestPermissions() async {
+    // Request SMS and Phone permissions on startup
+    await [
+      Permission.sms,
+      Permission.phone,
+    ].request();
+  }
 
   void _submit() async {
     final username = _usernameController.text.trim();
